@@ -4,23 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Comment extends Model
 {
-    /** @use HasFactory<\Database\Factories\CommentFactory> */
     use HasFactory;
 
-    protected $table = 'comments';
-    protected $fillable = ['user_id', 'film_id', 'content'];
+    protected $fillable = ['film_id', 'user_id', 'content', 'rating'];
 
-    public function film(): HasMany
+    public function film()
     {
-        return $this->hasMany(Film::class);
+        return $this->belongsTo(Film::class);
     }
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

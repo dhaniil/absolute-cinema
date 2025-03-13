@@ -7,7 +7,13 @@ use App\Models\Film;
 
 class Index extends Component
 {
-
+    public $loading = false;
+    
+    public function viewFilmDetails($slug)
+    {
+        $this->loading = true;
+        return redirect()->route('film.show', ['slug' => $slug]);
+    }
 
     public function render()
     {

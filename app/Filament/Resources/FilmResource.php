@@ -17,8 +17,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TagsInput;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illauminate\Support\Facades\Storage;
+
 
 class FilmResource extends Resource
 {
@@ -30,28 +33,40 @@ class FilmResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                ->required()
-                ->afterStateUpdated(fn ($state, callable $set)
-                => $set('slug', Str::slug(strtolower($state)))
-                ),
-                Hidden::make('user_id')
-                ->default(Auth::id()),
-                Select::make('genre_id')
-                ->options(fn() => \App\Models\Genre::pluck('name', 'id'))
-                ->required(),
-                Hidden::make('slug'),
-                Forms\Components\MarkdownEditor::make('synopsis')
-                ->required(),
-                TextInput::make('release_year')
-                ->required()
-                ->numeric(),
-                Forms\Components\FileUpload::make('poster')
-                ->required()
-                ->disk('public')
-                ->imageEditor(true),
-                TextInput::make('trailer_url')
+            Forms\Components\TextInput::make('title')
+            ->required()
+            ->afterStateUpdated(fn ($state, callable $set)
+            => $set('slug', Str::slug(strtolower($state))))
+            ->columnSpanFull(),
+            Hidden::make('slug'),
+            Hidden::make('user_id')
+            ->default(Auth::id()),
+            Select::make('genre_id')
+            ->multiple()
+            ->label('Genre')
+            ->options(fn() => \App\Models\Genre::pluck('name', 'id'))
+            ->required(),
+            Forms\Components\MarkdownEditor::make('synopsis')
+            ->required()
+            ->columnSpanFull(),
+            TextInput::make('release_year')
+            ->required()
+            ->numeric(),
+            Forms\Components\FileUpload::make('poster')
+            ->required()
+            ->image()
+            ->deleteUploadedFileUsing(fn ($record) => $record && $record->image ? Storage::disk('public')->delete($record->image) : null)
+            ->disk('public')
+            ->imageEditor(true)
+            ->panelLayout('grid')
+            ->imageEditorAspectRatios([
+                '4:3'
+            ])
+            ->columnSpanFull(),
+            TextInput::make('trailer_url')
+            ->columnSpanFull()
             ]);
+            
     }
 
     public static function table(Table $table): Table
@@ -60,19 +75,23 @@ class FilmResource extends Resource
             ->columns([
                 TextColumn::make('title'),
                 TextColumn::make('release_year'),
-                TextColumn::make('synopsis')
+                TextColumn::make('slug')
+
 
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->modal(),
             ])
+            
+            
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+                
             ]);
     }
 
@@ -87,8 +106,6 @@ class FilmResource extends Resource
     {
         return [
             'index' => Pages\ListFilms::route('/'),
-            'create' => Pages\CreateFilm::route('/create'),
-            'edit' => Pages\EditFilm::route('/{record}/edit'),
         ];
     }
 }

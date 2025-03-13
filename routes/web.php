@@ -6,8 +6,8 @@ use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    return redirect('/home');
+});
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -22,5 +22,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/home', App\Livewire\Home\Index::class)->name('home');
+
+// Make sure this route exists
+Route::get('/film/{slug}', \App\Livewire\Home\Show::class)->name('film.show');
+
+Route::get('/adminpanel', function(){
+    return redirect('/admin');
+})->name('adminpanel');
 
 require __DIR__.'/auth.php';
