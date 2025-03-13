@@ -1,15 +1,15 @@
-<div class="relative" x-data="{placeholder: @entangle('searchType')}">
+<div class="relative"  x-data="{placeholder: @entangle('searchType')}">
     <flux:input.group>
-        <flux:select class="max-w-fit" wire:model.live="searchType">
+        <flux:select size="sm" class="max-w-22" wire:model.live="searchType">
             <flux:select.option value="Tahun Rilis">Tahun Rilis</flux:select.option>
             <flux:select.option value="Genre">Genre</flux:select.option>
             <flux:select.option value="Judul">Judul</flux:select.option>
         </flux:select>
     
-        <flux:input 
+        <flux:input size="sm"
             wire:model.live.debounce.300ms="query" 
             placeholder="{{ 'Masukkan ' . $searchType }}" 
-            class="w-36 md:w-64"
+            class="w-36 md:w-32"
             @focus="$wire.showResults = $wire.query.length >= 2"
             @click.outside="$wire.showResults = false"
         />
